@@ -1,0 +1,16 @@
+[
+{
+  "modid": "LunarClientSpoofer",
+  "name": "Lunar Client Spoofer",
+  "description": "Makes any server using a public Lunar Client API think you're using Lunar Client.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/LeviDevs/LunarClientSpoofer",
+  "updateUrl": "https://github.com/LeviDevs/LunarClientSpoofer",
+  "authorList": ["Levi Taylor"],
+  "credits": "Forge Development Team",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
