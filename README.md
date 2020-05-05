@@ -6,18 +6,18 @@ Get the latest release from the [releases](https://github.com/LeviDevs/LunarClie
 
 ## FAQ
 
-#####Does this bypass Lunar Network's check?
+##### Does this bypass Lunar Network's check?
 In short: yes. This mod will bypass their check to see if you're on Lunar Client, but will **not** bypass their anti-cheat protection.
 
-#####Is this mod a cheat?
+##### Is this mod a cheat?
 This mod does not provide any unfair advantages. All it does is make the server think you're using Lunar Client.
 Servers that screenshare typically do not freeze players running Lunar Client.
 
-#####What public API's does this bypass?
+##### What public API's does this bypass?
 There are no public API's that this mod does not work with to my knowledge. If you find an API that this mod does not
 work with, you may open an [issue](https://github.com/LeviDevs/LunarClientSpoofer/issues).
 
-#####Is there a way to toggle it on/off?
+##### Is there a way to toggle it on/off?
 No. You'll need to remove it from your mods folder and restart Minecraft for the mod to be removed.
 
 ## Compatibility
