@@ -1,12 +1,15 @@
 package me.levidevs.lunarclientspoofer.transformer;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
+import java.nio.ByteBuffer;
 import java.util.Iterator;
+import java.util.UUID;
 
 /**
  * @author Levi Taylor
@@ -65,33 +68,26 @@ public class NetHandlerTransformer implements IClassTransformer {
 
                 // Goal: send custom payload with "REGISTER" as type and "Lunar-Client" as value to register channel
 
-                // Load `this` on to stack
-                list.add(new VarInsnNode(Opcodes.ALOAD, 0));
+                // Byte array instructions for second constructor argument
+                InsnList arrayInstructions = new InsnList();
+                arrayInstructions.add(new LdcInsnNode("Lunar-Client"));
+                arrayInstructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "com/google/common/base/Charsets", "UTF_8", "Ljava/nio/charset/Charset;"));
+                arrayInstructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "getBytes", "(Ljava/nio/charset/Charset;)[B"));
 
-                // Load `netManager` on to stack
-                list.add(new FieldInsnNode(Opcodes.GETFIELD, "bjb", "e", "Lej;"));
+                // Add packet with "REGISTER" as type and instructions above
+                addInstructions(list, "REGISTER", arrayInstructions);
 
-                // Create new C17PacketCustomPayload
-                list.add(new TypeInsnNode(Opcodes.NEW, "iz"));
-                list.add(new InsnNode(Opcodes.DUP));
+                // Send custom payload with "Lunar-Client" as type and a byte array containing the player's UUID
+                arrayInstructions.clear();
 
-                // First constructor argument: REGISTER
-                list.add(new LdcInsnNode("REGISTER"));
+                arrayInstructions.add(new MethodInsnNode(
+                        Opcodes.INVOKESTATIC,
+                        "me/levidevs/lunarclientspoofer/transformer/NetHandlerTransformer",
+                        "createPacket26",
+                        "()[B"
+                ));
 
-                // Second constructor argument: "Lunar-Client" as a byte array
-                list.add(new LdcInsnNode("Lunar-Client"));
-                list.add(new FieldInsnNode(Opcodes.GETSTATIC, "com/google/common/base/Charsets", "UTF_8", "Ljava/nio/charset/Charset;"));
-                list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "getBytes", "(Ljava/nio/charset/Charset;)[B"));
-
-                // Call constructor
-                list.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "iz", "<init>", "(Ljava/lang/String;[B)V"));
-
-                // Create second method parameter - empty array of GenericFutureListener
-                list.add(new InsnNode(Opcodes.ICONST_0));
-                list.add(new TypeInsnNode(Opcodes.ANEWARRAY, "io/netty/util/concurrent/GenericFutureListener"));
-
-                // Send the packet
-                list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "ej", "a", "(Lft;[Lio/netty/util/concurrent/GenericFutureListener;)V"));
+                addInstructions(list, "Lunar-Client", arrayInstructions);
 
                 // Add the instructions
                 method.instructions.add(list);
@@ -109,6 +105,58 @@ public class NetHandlerTransformer implements IClassTransformer {
 
         // Return original class in case we some how reach here
         return basicClass;
+    }
+
+    /**
+     * Adds the instructions required to the specified {@link InsnList} to send a custom payload packet with the
+     * specified values.
+     * @param list The list to add the instructions to
+     * @param type The first value in the custom payload packet
+     * @param byteArrayInstructions The instructions that will put a byte array on top of the stack, used as the second
+     *                              argument
+     */
+    private static void addInstructions(InsnList list, String type, InsnList byteArrayInstructions) {
+        // Load `this` on to stack
+        list.add(new VarInsnNode(Opcodes.ALOAD, 0));
+
+        // Load `netManager` on to stack
+        list.add(new FieldInsnNode(Opcodes.GETFIELD, "bjb", "e", "Lej;"));
+
+        // Create new C17PacketCustomPayload
+        list.add(new TypeInsnNode(Opcodes.NEW, "iz"));
+        list.add(new InsnNode(Opcodes.DUP));
+
+        // First constructor argument
+        list.add(new LdcInsnNode(type));
+
+        // Add byte array instructions for second constructor argument
+        list.add(byteArrayInstructions);
+
+        // Call constructor
+        list.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "iz", "<init>", "(Ljava/lang/String;[B)V"));
+
+        // Create second method parameter - empty array of GenericFutureListener
+        list.add(new InsnNode(Opcodes.ICONST_0));
+        list.add(new TypeInsnNode(Opcodes.ANEWARRAY, "io/netty/util/concurrent/GenericFutureListener"));
+
+        // Send the packet
+        list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "ej", "a", "(Lft;[Lio/netty/util/concurrent/GenericFutureListener;)V"));
+    }
+
+    /**
+     * Gets the bytes required for packet #26, which is used to "authenticate" so the server knowns for certain
+     * that the client is Lunar Client.
+     * @return An array of 17 bytes, the first byte being the value of 26, and the remaining 16 being the player's UUID
+     */
+    public static byte[] createPacket26() {
+        ByteBuffer buffer = ByteBuffer.wrap(new byte[17]);
+        buffer.put((byte) 26);
+
+        UUID uuid = Minecraft.getMinecraft().thePlayer.getUniqueID();
+        buffer.putLong(uuid.getMostSignificantBits());
+        buffer.putLong(uuid.getLeastSignificantBits());
+
+        return buffer.array();
     }
 
 }
