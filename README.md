@@ -31,4 +31,7 @@ a list of your mods.
 ## Developers
 Compiling is trivial. Simply clone, `gradlew setupDecompWorkspace`, `gradlew idea` (or `gradlew eclipse` for Eclipse users),
 `gradlew build`. You can use `gradlew genIntellijRuns` to generate run scripts for IntelliJ.\
+
+If you're using Linux, you'll need to use `./gradlew` instead of `gradlew`. You may also need to `chmod +x ./gradlew` to run it.
+
 This project uses Java 8, **not** Java 6.
