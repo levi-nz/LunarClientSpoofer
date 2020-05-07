@@ -2,7 +2,7 @@
 Makes any server using a public Lunar Client API think you're using Lunar Client.
 
 ## Installation 
-Get the latest release from the [releases](https://github.com/LeviDevs/LunarClientSpoofer) page and put it in your mods folder.
+Get the latest release from the [releases](https://github.com/LeviDevs/LunarClientSpoofer/releases) page and put it in your mods folder.
 
 ## FAQ
 
