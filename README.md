@@ -36,4 +36,6 @@ Compiling is trivial. Simply clone, `gradlew setupDecompWorkspace`, `gradlew ide
 
 If you're using Linux, you'll need to use `./gradlew` instead of `gradlew`. You may also need to `chmod +x ./gradlew` to run it.
 
+You may need to restart IntelliJ after running the above commands so IntelliJ re-indexes the project.
+
 This project uses Java 8, **not** Java 6.
